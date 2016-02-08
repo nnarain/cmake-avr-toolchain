@@ -1,10 +1,16 @@
 
-#include <avr/io.h>
+#define F_CPU 16000000
 
-#include "myfuncs.h"
+#include <avr/io.h>
+#include <util/delay.h>
 
 int main()
 {
-	int sum = add(4, 3);
+	
+	for(;;)
+	{
+		
+	}
+
 	return 0;
 }

@@ -56,8 +56,32 @@ set(CMAKE_OBJCOPY      "${TOOLCHAIN_ROOT}/${TRIPLE}-objcopy${OS_SUFFIX}" CACHE P
 set(CMAKE_OBJDUMP      "${TOOLCHAIN_ROOT}/${TRIPLE}-objdump${OS_SUFFIX}" CACHE PATH "objdump" FORCE)
 set(CMAKE_STRIP        "${TOOLCHAIN_ROOT}/${TRIPLE}-strip${OS_SUFFIX}"   CACHE PATH "strip"   FORCE)
 set(CMAKE_RANLIB       "${TOOLCHAIN_ROOT}/${TRIPLE}-ranlib${OS_SUFFIX}"  CACHE PATH "ranlib"  FORCE)
+set(AVR_SIZE           "${TOOLCHAIN_ROOT}/${TRIPLE}-size${OS_SUFFIX}"    CACHE PATH "size"    FORCE)
 
-set(AVR_SIZE           "${TOOLCHAIN_ROOT}/${TRIPLE}-size${OS_SUFFIX}"  CACHE PATH "size"    FORCE)
+# avr uploader config
+find_program(AVR_UPLOAD
+	NAME
+		avrdude
+
+	PATHS
+		/usr/bin/
+)
+
+if(NOT AVR_UPLOAD_BUAD)
+	set(AVR_UPLOAD_BUAD 115200)
+endif(NOT AVR_UPLOAD_BUAD)
+
+if(NOT AVR_UPLOAD_PROGRAMMER)
+	set(AVR_UPLOAD_PROGRAMMER "arduino")
+endif(NOT AVR_UPLOAD_PROGRAMMER)
+
+if(NOT AVR_UPLOAD_CHIP)
+	set(AVR_UPLOAD_CHIP "m328p")
+endif(NOT AVR_UPLOAD_CHIP)
+
+message("BUAD: ${AVR_UPLOAD_BUAD}")
+
+# setup the avr exectable macro
 
 set(AVR_LINKER_LIBS "-lm -lc")
 
@@ -122,6 +146,20 @@ macro(add_avr_executable target_name)
 
 		PROPERTIES
 			OUTPUT_NAME ${elf_file}
+	)
+
+	# flash command
+	add_custom_command(
+		OUTPUT "flash-hex"
+
+		COMMAND
+			${AVR_UPLOAD} -b${AVR_UPLOAD_BUAD} -c${AVR_UPLOAD_PROGRAMMER} -p${AVR_UPLOAD_CHIP} -U flash:w:${hex_file} -P"/dev/ttyACM0"
+	)
+
+	add_custom_target(
+		"flash"
+
+		DEPENDS "flash-hex"
 	)
 
 endmacro(add_avr_executable)
