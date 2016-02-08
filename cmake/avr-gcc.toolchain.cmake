@@ -79,8 +79,6 @@ if(NOT AVR_UPLOAD_CHIP)
 	set(AVR_UPLOAD_CHIP "m328p")
 endif(NOT AVR_UPLOAD_CHIP)
 
-message("BUAD: ${AVR_UPLOAD_BUAD}")
-
 # setup the avr exectable macro
 
 set(AVR_LINKER_LIBS "-lm -lc")
