@@ -148,7 +148,7 @@ macro(add_avr_executable target_name)
 
 	# flash command
 	add_custom_command(
-		OUTPUT "flash-hex"
+		OUTPUT "flash-${hex_file}"
 
 		COMMAND
 			${AVR_UPLOAD} -b${AVR_UPLOAD_BUAD} -c${AVR_UPLOAD_PROGRAMMER} -p${AVR_UPLOAD_CHIP} -U flash:w:${hex_file} -P"/dev/ttyACM0"
@@ -157,7 +157,7 @@ macro(add_avr_executable target_name)
 	add_custom_target(
 		"flash"
 
-		DEPENDS "flash-hex"
+		DEPENDS "flash-${hex_file}"
 	)
 
 endmacro(add_avr_executable)
