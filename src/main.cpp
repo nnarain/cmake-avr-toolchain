@@ -1,11 +1,11 @@
 
 #define F_CPU 16000000
 
-#include <avr/io.h>
-#include <util/delay.h>
+#include "Arduino.h"
 
 int main()
 {
+	Serial.begin(9600);
 	
 	for(;;)
 	{
