@@ -68,6 +68,7 @@ find_program(AVR_UPLOAD
 
 	PATHS
 		/usr/bin/
+		$ENV{AVR_ROOT}
 )
 
 if(NOT AVR_UPLOAD_BUAD)
