@@ -20,6 +20,8 @@ if(UNIX)
 			/usr/bin/
 			/usr/local/bin
 			/bin/
+
+			$ENV{AVR_ROOT}
 	)
 
 elseif(WIN32)
@@ -31,6 +33,7 @@ elseif(WIN32)
 
 		PATHS
 			C:\WinAVR\bin
+			$ENV{AVR_ROOT}
 	)
 
 else(UNIX)
