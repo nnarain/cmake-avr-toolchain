@@ -83,6 +83,15 @@ if(NOT AVR_UPLOAD_CHIP)
 	set(AVR_UPLOAD_CHIP "m328p")
 endif(NOT AVR_UPLOAD_CHIP)
 
+if(NOT AVR_UPLOAD_PORT)
+	if(UNIX)
+		set(AVR_UPLOAD_PORT "/dev/USB0")
+	endif(UNIX)
+	if(WIN32)
+		set(AVR_UPLOAD_PORT "COM3")
+	endif(WIN32)
+endif(NOT AVR_UPLOAD_PORT)
+
 # setup the avr exectable macro
 
 set(AVR_LINKER_LIBS "-lm -lc")
@@ -103,7 +112,7 @@ macro(add_avr_executable target_name)
 		${elf_file}
 
 		PROPERTIES
-			COMPILE_FLAGS "-g -mmcu=${AVR_MCU}"
+			COMPILE_FLAGS "-mmcu=${AVR_MCU} -g -Os"
 			LINK_FLAGS    "-Wl,-Map,${map_file} ${AVR_LINKER_LIBS}"
 	)
 
