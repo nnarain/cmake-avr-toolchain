@@ -51,13 +51,15 @@ set(ARDUINO_AVR_ROOT "${ARDUINO_ROOT}hardware/arduino/avr/")
 set(ARDUINO_CORE "${ARDUINO_AVR_ROOT}cores/arduino/")
 set(ARDUINO_VARIANT_ROOT "${ARDUINO_AVR_ROOT}variants/standard")
 
-set(ARDUINO_INCLUDE_DIR ${ARDUINO_CORE} ${ARDUINO_VARIANT_ROOT})
+set(ARDUINO_INCLUDE_DIR ${ARDUINO_CORE} ${ARDUINO_VARIANT_ROOT} "/usr/lib/avr/include")
 
 file(GLOB ARDUINO_CORE_SOURCES 
 	${ARDUINO_CORE}*.cpp
 	${ARDUINO_CORE}*.c
+	${ARDUINO_CORE}*.S
 )
-message("package: sources: ${ARDUINO_CORE_SOURCES}")
+
+list(REMOVE_ITEM ARDUINO_CORE_SOURCES "${ARDUINO_CORE}main.cpp")
 
 # finished finding package requirements
 include(FindPackageHandleStandardArgs)

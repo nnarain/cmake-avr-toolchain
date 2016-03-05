@@ -11,17 +11,14 @@ project(myproject C CXX ASM)
 
 add_definitions(-DF_CPU=16000000)
 
-find_package(Arduino)
-
 include_directories(
 	include/
-	${ARDUINO_INCLUDE_DIR}
 )
 
 add_avr_executable(
 	${PROJECT_NAME}
 
 	src/main.cpp
-
-	${ARDUINO_CORE_SOURCES}
 )
+
+target_link_libraries(${PROJECT_NAME} m c gcc)

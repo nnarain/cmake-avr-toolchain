@@ -61,6 +61,8 @@ set(CMAKE_STRIP        "${TOOLCHAIN_ROOT}/${TRIPLE}-strip${OS_SUFFIX}"   CACHE P
 set(CMAKE_RANLIB       "${TOOLCHAIN_ROOT}/${TRIPLE}-ranlib${OS_SUFFIX}"  CACHE PATH "ranlib"  FORCE)
 set(AVR_SIZE           "${TOOLCHAIN_ROOT}/${TRIPLE}-size${OS_SUFFIX}"    CACHE PATH "size"    FORCE)
 
+set(CMAKE_EXE_LINKER_FLAGS "-L /usr/lib/gcc/avr/4.8.2")
+
 # avr uploader config
 find_program(AVR_UPLOAD
 	NAME
@@ -79,10 +81,6 @@ if(NOT AVR_UPLOAD_PROGRAMMER)
 	set(AVR_UPLOAD_PROGRAMMER "arduino")
 endif(NOT AVR_UPLOAD_PROGRAMMER)
 
-if(NOT AVR_UPLOAD_CHIP)
-	set(AVR_UPLOAD_CHIP "m328p")
-endif(NOT AVR_UPLOAD_CHIP)
-
 if(NOT AVR_UPLOAD_PORT)
 	if(UNIX)
 		set(AVR_UPLOAD_PORT "/dev/USB0")
@@ -94,7 +92,7 @@ endif(NOT AVR_UPLOAD_PORT)
 
 # setup the avr exectable macro
 
-set(AVR_LINKER_LIBS "-lm -lc")
+set(AVR_LINKER_LIBS "-lc -lm -lgcc")
 
 macro(add_avr_executable target_name)
 
@@ -112,8 +110,8 @@ macro(add_avr_executable target_name)
 		${elf_file}
 
 		PROPERTIES
-			COMPILE_FLAGS "-mmcu=${AVR_MCU} -g -Os"
-			LINK_FLAGS    "-Wl,-Map,${map_file} ${AVR_LINKER_LIBS}"
+			COMPILE_FLAGS "-mmcu=${AVR_MCU} -g -Os -w -std=gnu++11 -fno-exceptions -ffunction-sections -fdata-sections"
+			LINK_FLAGS    "-Wl,-Map,${map_file},--section-start,.data=0x801100,--defsym=__heap_end=0x80ffff ${AVR_LINKER_LIBS}"
 	)
 
 	# generate the lst file
@@ -164,7 +162,7 @@ macro(add_avr_executable target_name)
 		OUTPUT "flash-${hex_file}"
 
 		COMMAND
-			${AVR_UPLOAD} -b${AVR_UPLOAD_BUAD} -c${AVR_UPLOAD_PROGRAMMER} -p${AVR_UPLOAD_CHIP} -U flash:w:${hex_file} -P${AVR_UPLOAD_PORT}
+			${AVR_UPLOAD} -b${AVR_UPLOAD_BUAD} -c${AVR_UPLOAD_PROGRAMMER} -p${AVR_MCU} -U flash:w:${hex_file} -P${AVR_UPLOAD_PORT}
 	)
 
 	add_custom_target(
