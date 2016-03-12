@@ -44,9 +44,22 @@ endforeach(versionFile)
 # get arduino root
 string(REPLACE "/lib//version.txt" "" ARDUINO_ROOT ${ARDUINO_VERSION_FILE})
 
-# arduino libraries root
-set(ARDUINO_LIB_ROOT "${ARDUINO_ROOT}/libraries")
+# arduino folder locations
 
+set(ARDUINO_LIB_ROOT "${ARDUINO_ROOT}/libraries")
+set(ARDUINO_AVR_ROOT "${ARDUINO_ROOT}hardware/arduino/avr/")
+set(ARDUINO_CORE "${ARDUINO_AVR_ROOT}cores/arduino/")
+set(ARDUINO_VARIANT_ROOT "${ARDUINO_AVR_ROOT}variants/standard")
+
+set(ARDUINO_INCLUDE_DIR ${ARDUINO_CORE} ${ARDUINO_VARIANT_ROOT} "/usr/lib/avr/include")
+
+file(GLOB ARDUINO_CORE_SOURCES 
+	${ARDUINO_CORE}*.cpp
+	${ARDUINO_CORE}*.c
+	${ARDUINO_CORE}*.S
+)
+
+list(REMOVE_ITEM ARDUINO_CORE_SOURCES "${ARDUINO_CORE}main.cpp")
 
 # finished finding package requirements
 include(FindPackageHandleStandardArgs)
@@ -56,4 +69,6 @@ find_package_handle_standard_args(
 	ARDUINO_ROOT
 	ARDUINO_VERSION_NUMBER
 	ARDUINO_LIB_ROOT
+	ARDUINO_INCLUDE_DIR
+	ARDUINO_CORE_SOURCES
 )

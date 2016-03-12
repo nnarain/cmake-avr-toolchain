@@ -20,6 +20,8 @@ if(UNIX)
 			/usr/bin/
 			/usr/local/bin
 			/bin/
+
+			$ENV{AVR_ROOT}
 	)
 
 elseif(WIN32)
@@ -31,6 +33,7 @@ elseif(WIN32)
 
 		PATHS
 			C:\WinAVR\bin
+			$ENV{AVR_ROOT}
 	)
 
 else(UNIX)
@@ -58,6 +61,8 @@ set(CMAKE_STRIP        "${TOOLCHAIN_ROOT}/${TRIPLE}-strip${OS_SUFFIX}"   CACHE P
 set(CMAKE_RANLIB       "${TOOLCHAIN_ROOT}/${TRIPLE}-ranlib${OS_SUFFIX}"  CACHE PATH "ranlib"  FORCE)
 set(AVR_SIZE           "${TOOLCHAIN_ROOT}/${TRIPLE}-size${OS_SUFFIX}"    CACHE PATH "size"    FORCE)
 
+set(CMAKE_EXE_LINKER_FLAGS "-L /usr/lib/gcc/avr/4.8.2")
+
 # avr uploader config
 find_program(AVR_UPLOAD
 	NAME
@@ -65,23 +70,29 @@ find_program(AVR_UPLOAD
 
 	PATHS
 		/usr/bin/
+		$ENV{AVR_ROOT}
 )
 
 if(NOT AVR_UPLOAD_BUAD)
-	set(AVR_UPLOAD_BUAD 115200)
+	set(AVR_UPLOAD_BUAD 57600)
 endif(NOT AVR_UPLOAD_BUAD)
 
 if(NOT AVR_UPLOAD_PROGRAMMER)
 	set(AVR_UPLOAD_PROGRAMMER "arduino")
 endif(NOT AVR_UPLOAD_PROGRAMMER)
 
-if(NOT AVR_UPLOAD_CHIP)
-	set(AVR_UPLOAD_CHIP "m328p")
-endif(NOT AVR_UPLOAD_CHIP)
+if(NOT AVR_UPLOAD_PORT)
+	if(UNIX)
+		set(AVR_UPLOAD_PORT "/dev/ttyUSB0")
+	endif(UNIX)
+	if(WIN32)
+		set(AVR_UPLOAD_PORT "COM3")
+	endif(WIN32)
+endif(NOT AVR_UPLOAD_PORT)
 
 # setup the avr exectable macro
 
-set(AVR_LINKER_LIBS "-lm -lc")
+set(AVR_LINKER_LIBS "-lc -lm -lgcc")
 
 macro(add_avr_executable target_name)
 
@@ -99,8 +110,8 @@ macro(add_avr_executable target_name)
 		${elf_file}
 
 		PROPERTIES
-			COMPILE_FLAGS "-g -mmcu=${AVR_MCU}"
-			LINK_FLAGS    "-Wl,-Map,${map_file} ${AVR_LINKER_LIBS}"
+			COMPILE_FLAGS "-mmcu=${AVR_MCU} -g -Os -w -std=gnu++11 -fno-exceptions -ffunction-sections -fdata-sections"
+			LINK_FLAGS    "-mmcu=${AVR_MCU} -Wl,-Map,${map_file} ${AVR_LINKER_LIBS}"
 	)
 
 	# generate the lst file
@@ -124,7 +135,7 @@ macro(add_avr_executable target_name)
 	)
 
 	add_custom_command(
-		OUTPUT "print-size"
+		OUTPUT "print-size-${elf_file}"
 
 		COMMAND
 			${AVR_SIZE} ${elf_file}
@@ -136,7 +147,7 @@ macro(add_avr_executable target_name)
 	add_custom_target(
 		${target_name}
 		ALL
-		DEPENDS ${hex_file} ${lst_file} "print-size"
+		DEPENDS ${hex_file} ${lst_file} "print-size-${elf_file}"
 	)
 
 	set_target_properties(
@@ -148,16 +159,16 @@ macro(add_avr_executable target_name)
 
 	# flash command
 	add_custom_command(
-		OUTPUT "flash-hex"
+		OUTPUT "flash-${hex_file}"
 
 		COMMAND
-			${AVR_UPLOAD} -b${AVR_UPLOAD_BUAD} -c${AVR_UPLOAD_PROGRAMMER} -p${AVR_UPLOAD_CHIP} -U flash:w:${hex_file} -P"/dev/ttyACM0"
+			${AVR_UPLOAD} -b${AVR_UPLOAD_BUAD} -c${AVR_UPLOAD_PROGRAMMER} -p${AVR_MCU} -U flash:w:${hex_file} -P${AVR_UPLOAD_PORT}
 	)
 
 	add_custom_target(
-		"flash"
+		"flash-${target_name}"
 
-		DEPENDS "flash-hex"
+		DEPENDS "flash-${hex_file}"
 	)
 
 endmacro(add_avr_executable)

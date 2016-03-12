@@ -9,6 +9,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 project(myproject C CXX ASM)
 
+add_definitions(-DF_CPU=16000000)
+
 include_directories(
 	include/
 )
@@ -16,5 +18,5 @@ include_directories(
 add_avr_executable(
 	${PROJECT_NAME}
 
-	src/main.cpp
+	test/main.cpp
 )
