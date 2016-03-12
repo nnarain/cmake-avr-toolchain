@@ -74,7 +74,7 @@ find_program(AVR_UPLOAD
 )
 
 if(NOT AVR_UPLOAD_BUAD)
-	set(AVR_UPLOAD_BUAD 115200)
+	set(AVR_UPLOAD_BUAD 57600)
 endif(NOT AVR_UPLOAD_BUAD)
 
 if(NOT AVR_UPLOAD_PROGRAMMER)
@@ -83,7 +83,7 @@ endif(NOT AVR_UPLOAD_PROGRAMMER)
 
 if(NOT AVR_UPLOAD_PORT)
 	if(UNIX)
-		set(AVR_UPLOAD_PORT "/dev/USB0")
+		set(AVR_UPLOAD_PORT "/dev/ttyUSB0")
 	endif(UNIX)
 	if(WIN32)
 		set(AVR_UPLOAD_PORT "COM3")
@@ -111,7 +111,7 @@ macro(add_avr_executable target_name)
 
 		PROPERTIES
 			COMPILE_FLAGS "-mmcu=${AVR_MCU} -g -Os -w -std=gnu++11 -fno-exceptions -ffunction-sections -fdata-sections"
-			LINK_FLAGS    "-Wl,-Map,${map_file},--section-start,.data=0x801100,--defsym=__heap_end=0x80ffff ${AVR_LINKER_LIBS}"
+			LINK_FLAGS    "-mmcu=${AVR_MCU} -Wl,-Map,${map_file} ${AVR_LINKER_LIBS}"
 	)
 
 	# generate the lst file
@@ -135,7 +135,7 @@ macro(add_avr_executable target_name)
 	)
 
 	add_custom_command(
-		OUTPUT "print-size"
+		OUTPUT "print-size-${elf_file}"
 
 		COMMAND
 			${AVR_SIZE} ${elf_file}
@@ -147,7 +147,7 @@ macro(add_avr_executable target_name)
 	add_custom_target(
 		${target_name}
 		ALL
-		DEPENDS ${hex_file} ${lst_file} "print-size"
+		DEPENDS ${hex_file} ${lst_file} "print-size-${elf_file}"
 	)
 
 	set_target_properties(
@@ -166,7 +166,7 @@ macro(add_avr_executable target_name)
 	)
 
 	add_custom_target(
-		"flash"
+		"flash-${target_name}"
 
 		DEPENDS "flash-${hex_file}"
 	)
