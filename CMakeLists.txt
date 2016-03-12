@@ -18,7 +18,5 @@ include_directories(
 add_avr_executable(
 	${PROJECT_NAME}
 
-	src/main.cpp
+	test/main.cpp
 )
-
-target_link_libraries(${PROJECT_NAME} m c gcc)
