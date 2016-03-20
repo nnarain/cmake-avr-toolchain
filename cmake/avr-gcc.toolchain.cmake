@@ -61,8 +61,6 @@ set(CMAKE_STRIP        "${TOOLCHAIN_ROOT}/${TRIPLE}-strip${OS_SUFFIX}"   CACHE P
 set(CMAKE_RANLIB       "${TOOLCHAIN_ROOT}/${TRIPLE}-ranlib${OS_SUFFIX}"  CACHE PATH "ranlib"  FORCE)
 set(AVR_SIZE           "${TOOLCHAIN_ROOT}/${TRIPLE}-size${OS_SUFFIX}"    CACHE PATH "size"    FORCE)
 
-set(CMAKE_EXE_LINKER_FLAGS "-L /usr/lib/gcc/avr/4.8.2")
-
 # avr uploader config
 find_program(AVR_UPLOAD
 	NAME
@@ -90,6 +88,22 @@ if(NOT AVR_UPLOAD_PORT)
 	endif(WIN32)
 endif(NOT AVR_UPLOAD_PORT)
 
+# simavr config
+find_program(SIMAVR
+	NAME
+		simavr
+
+	PATHS
+		/usr/bin/
+		$ENV{SIMAVR_HOME}
+)
+
+if(NOT SIMAVR)
+	message("-- Could not find simavr")
+else(NOT SIMAVR)
+	message("-- Found simavr: ${SIMAVR}")
+endif(NOT SIMAVR)
+
 # setup the avr exectable macro
 
 set(AVR_LINKER_LIBS "-lc -lm -lgcc")
@@ -110,7 +124,7 @@ macro(add_avr_executable target_name)
 		${elf_file}
 
 		PROPERTIES
-			COMPILE_FLAGS "-mmcu=${AVR_MCU} -g -Os -w -std=gnu++11 -fno-exceptions -ffunction-sections -fdata-sections"
+			COMPILE_FLAGS "-mmcu=${AVR_MCU} -g -Os -w -fno-exceptions -ffunction-sections -fdata-sections -fpermissive"
 			LINK_FLAGS    "-mmcu=${AVR_MCU} -Wl,-Map,${map_file} ${AVR_LINKER_LIBS}"
 	)
 
@@ -170,5 +184,21 @@ macro(add_avr_executable target_name)
 
 		DEPENDS "flash-${hex_file}"
 	)
+
+	if(SIMAVR)
+		# create sim avr targets
+		add_custom_command(
+			OUTPUT "sim-${elf_file}"
+
+			COMMAND
+				${SIMAVR} -m ${AVR_MCU} -f 16000000 ${elf_file}
+		)
+
+		add_custom_target(
+			"sim-${target_name}"
+
+			DEPENDS "sim-${elf_file}"
+		)
+	endif(SIMAVR)
 
 endmacro(add_avr_executable)
