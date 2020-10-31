@@ -1,34 +1,43 @@
-# CMake AVR Project Template
+# CMake AVR Toolchain
 
-This is a project template for using the avr-gcc toolchain with cmake.
+A toolchain file for working with `avr-gcc`.
 
-What's included?
-----------------
+Usage
+-----
 
-* AVR cmake toolchain file
-* Template CMakeLists.txt file
-* CMake module to find Arduino Core **TODO**
+**Requirements**
 
-Requirements
-------------
+* AVR toolchain installed on your system (If not in one of the default search paths, specify `$AVR_ROOT`)
 
-* AVR toolchain installed on your system
+Copy `avr-gcc.toolchain.cmake` into your project (or you could use this repo as a submodule). Then set `CMAKE_TOOLCHAIN_FILE`. This can be done from your project's `CMakeLists.txt` file or at the commandline.
 
+The following is an example `CMakeLists.txt` for an `atmega2560` project (Arduino Mega).
 
-Flashing
---------
+```
+cmake_minimum_required(VERSION 3.0)
 
-* uses avrdude
+set(CMAKE_TOOLCHAIN_FILE "/path/to/avr-gcc.toolchain.cmake")
 
-You can specify upload options when you generate your cmake project (Or just use the defaults).
+project(myproject C CXX ASM)
 
-```bash
-~$ cd build
-~$ cmake .. -DAVR_UPLOAD_BUAD=115200 -DAVR_UPLOAD_PORT=/dev/ttyACM0
+include_directories(
+    include/
+)
+
+add_definitions(-DF_CPU=16000000)
+add_avr_executable(${PROJECT_NAME} "atmega2560"
+    src/main.cpp
+)
 ```
 
-And flash the device with:
+```bash
+cmake
+# or the following if you want to specify the toolchain file at the command line
+cmake -DCMAKE_TOOLCHAIN_FILE=/path/to/avr-gcc.toolchain.cmake
+```
+
+**Flash**
 
 ```bash
-~$ make flash-targetname
+avrdude -v -patmega2560 -cwiring -PCOM6 -b115200 -D -Uflash:w:myproject-atmega2560.hex
 ```
