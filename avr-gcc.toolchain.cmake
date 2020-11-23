@@ -75,7 +75,7 @@ find_program(AVR_UPLOAD
 
 # setup the avr exectable macro
 
-set(AVR_LINKER_LIBS "-lc -lm -lgcc")
+set(AVR_LINKER_LIBS "-lc -lm -lgcc -Wl,-lprintf_flt -Wl,-u,vfprintf")
 
 macro(add_avr_executable target_name avr_mcu)
 
