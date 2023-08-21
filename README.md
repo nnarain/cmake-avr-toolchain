@@ -1,6 +1,6 @@
 # CMake AVR Toolchain
 
-A toolchain file for working with `avr-gcc`.
+A toolchain file for working with `avr-gcc`. Modified from the original branch to add support for precompiled objects and libraries
 
 Usage
 -----
@@ -13,7 +13,7 @@ Copy `avr-gcc.toolchain.cmake` into your project (or you could use this repo as 
 
 The following is an example `CMakeLists.txt` for an `atmega2560` project (Arduino Mega).
 
-```
+```cmake
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_TOOLCHAIN_FILE "/path/to/avr-gcc.toolchain.cmake")
@@ -25,7 +25,8 @@ include_directories(
 )
 
 add_definitions(-DF_CPU=16000000)
-add_avr_executable(${PROJECT_NAME} "atmega2560"
+
+add_avr_executable(${PROJECT_NAME} "atmega2560" ""
     src/main.cpp
 )
 ```
@@ -40,4 +41,17 @@ cmake -DCMAKE_TOOLCHAIN_FILE=/path/to/avr-gcc.toolchain.cmake
 
 ```bash
 avrdude -v -patmega2560 -cwiring -PCOM6 -b115200 -D -Uflash:w:myproject-atmega2560.hex
+```
+
+## Libraries
+
+Optional libraries and precompiled objects can be included through the use of an array type containing absolute paths pointing to the library files
+
+```cmake
+...
+
+set(libraries ${CMAKE_SOURCE_DIR}/lib/library.a ${CMAKE_SOURCE_DIR}/bin/object.o)
+add_avr_executable(${PROJECT_NAME} "atmega2560" ${libraries}
+    src/main.cpp
+)
 ```
