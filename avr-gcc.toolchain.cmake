@@ -77,7 +77,7 @@ find_program(AVR_UPLOAD
 
 set(AVR_LINKER_LIBS "-lc -lm -lgcc -Wl,-lprintf_flt -Wl,-u,vfprintf")
 
-macro(add_avr_executable target_name avr_mcu)
+macro(add_avr_executable target_name avr_mcu libraries)
 
     set(elf_file ${target_name}-${avr_mcu}.elf)
     set(map_file ${target_name}-${avr_mcu}.map)
@@ -87,6 +87,10 @@ macro(add_avr_executable target_name avr_mcu)
     # create elf file
     add_executable(${elf_file}
         ${ARGN}
+    )
+
+    target_link_libraries(${elf_file}
+        ${libraries}
     )
 
     set_target_properties(
