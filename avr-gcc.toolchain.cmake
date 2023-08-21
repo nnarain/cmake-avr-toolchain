@@ -89,9 +89,12 @@ macro(add_avr_executable target_name avr_mcu libraries)
         ${ARGN}
     )
 
-    target_link_libraries(${elf_file}
-        ${libraries}
-    )
+    if (NOT ${libraries} STREQUAL "")
+        target_link_libraries(${elf_file}
+            ${libraries}
+        )
+        message("Libraries detected")
+    endif()
 
     set_target_properties(
         ${elf_file}
