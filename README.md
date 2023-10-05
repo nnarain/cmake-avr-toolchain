@@ -1,6 +1,6 @@
 # CMake AVR Toolchain
 
-A toolchain file for working with `avr-gcc`. Modified from the original branch to add support for precompiled objects and libraries
+A toolchain file for working with `avr-gcc`. Modified from the original branch to add support for precompiled objects and libraries.
 
 Usage
 -----
@@ -26,7 +26,12 @@ include_directories(
 
 add_definitions(-DF_CPU=16000000)
 
-add_avr_executable(${PROJECT_NAME} "atmega2560" ""
+add_avr_executable("${PROJECT_NAME} "atmega2560" 
+    ${CMAKE_SOURCE_DIR}/bin/lib.a
+    ${CMAKE_SOURCE_DIR}/bin/obj.o
+)
+
+add_avr_executable(${PROJECT_NAME} "atmega2560"
     src/main.cpp
 )
 ```
@@ -45,13 +50,13 @@ avrdude -v -patmega2560 -cwiring -PCOM6 -b115200 -D -Uflash:w:myproject-atmega25
 
 ## Libraries
 
-Optional libraries and precompiled objects can be included through the use of an array type containing absolute paths pointing to the library files
+Optional libraries and precompiled objects can be included through the `add_avr_libraries` macro, which is similar to the `add_avr_executable` macro
 
 ```cmake
 ...
 
-set(libraries ${CMAKE_SOURCE_DIR}/lib/library.a ${CMAKE_SOURCE_DIR}/bin/object.o)
-add_avr_executable(${PROJECT_NAME} "atmega2560" ${libraries}
-    src/main.cpp
+add_avr_libraries("${PROJECT_NAME} "atmega2560" 
+    ${CMAKE_SOURCE_DIR}/bin/lib.a
+    ${CMAKE_SOURCE_DIR}/bin/obj.o
 )
 ```
