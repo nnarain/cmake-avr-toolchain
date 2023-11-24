@@ -26,7 +26,7 @@ include_directories(
 
 add_definitions(-DF_CPU=16000000)
 
-add_avr_libraries("${PROJECT_NAME} "atmega2560" 
+add_avr_libraries(${PROJECT_NAME} "atmega2560" 
     ${CMAKE_SOURCE_DIR}/bin/lib.a
     ${CMAKE_SOURCE_DIR}/bin/obj.o
 )
