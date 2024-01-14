@@ -1,6 +1,6 @@
 # CMake AVR Toolchain
 
-A toolchain file for working with `avr-gcc`. Modified from the original branch to add support for precompiled objects and libraries.
+A toolchain file for working with `avr-gcc`.
 
 Usage
 -----
