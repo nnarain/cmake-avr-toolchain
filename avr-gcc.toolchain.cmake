@@ -77,6 +77,14 @@ find_program(AVR_UPLOAD
 
 set(AVR_LINKER_LIBS "-lc -lm -lgcc -Wl,-lprintf_flt -Wl,-u,vfprintf")
 
+# Macro for adding precompiled libraries
+macro(add_avr_libraries target_name avr_mcu)
+    target_link_libraries(
+        ${target_name}-${avr_mcu}.elf
+        ${ARGN}
+    )
+endmacro()
+
 macro(add_avr_executable target_name avr_mcu)
 
     set(elf_file ${target_name}-${avr_mcu}.elf)
